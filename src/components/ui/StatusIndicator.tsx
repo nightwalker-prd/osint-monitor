@@ -1,5 +1,4 @@
 "use client";
-
 import { clsx } from "clsx";
 
 interface StatusIndicatorProps {
@@ -19,7 +18,7 @@ export default function StatusIndicator({ status, label, showLabel = true }: Sta
   const config = statusConfig[status];
   return (
     <div className="flex items-center gap-1.5">
-      <span className={clsx("status-dot", config.color, status === "live" && "animate-pulse-slow")} />
+      <span className={clsx("w-1.5 h-1.5 rounded-full", config.color, status === "live" && "animate-pulse-slow")} />
       {showLabel && (
         <span className={clsx("text-[10px] font-mono uppercase tracking-wider", config.textColor)}>
           {label || config.label}
