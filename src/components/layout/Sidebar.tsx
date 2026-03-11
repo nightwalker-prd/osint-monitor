@@ -1,112 +1,193 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Map, GitBranch, Clock, Users, Radio, Settings,
-  ChevronLeft, ChevronRight, Shield, Eye
-} from "lucide-react";
-import { clsx } from "clsx";
+  LayoutDashboard,
+  Map,
+  Network,
+  Clock,
+  Users,
+  Newspaper,
+  Globe,
+  Shield,
+  MessageSquare,
+  Radio,
+  Bell,
+  Wallet,
+  Search as SearchIcon,
+  ChevronLeft,
+  ChevronRight,
+  Settings,
+  FileText,
+  Target,
+  Fingerprint,
+  Activity,
+  Zap,
+} from 'lucide-react';
 
 interface NavItem {
-  id: string;
   label: string;
-  icon: React.ReactNode;
-  active?: boolean;
+  icon: JSX.Element;
+  href: string;
   badge?: number;
+  isNew?: boolean;
 }
 
-const navItems: NavItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} />, active: true },
-  { id: "map", label: "Geospatial", icon: <Map size={18} /> },
-  { id: "graph", label: "Link Analysis", icon: <GitBranch size={18} /> },
-  { id: "timeline", label: "Timeline", icon: <Clock size={18} /> },
-  { id: "entities", label: "Entities", icon: <Users size={18} />, badge: 24 },
-  { id: "feeds", label: "Intel Feeds", icon: <Radio size={18} />, badge: 7 },
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
+  {
+    title: 'Overview',
+    items: [
+      { label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" />, href: '/' },
+    ],
+  },
+  {
+    title: 'Intelligence',
+    items: [
+      { label: 'Geo Map', icon: <Map className="w-4 h-4" />, href: '/#map' },
+      { label: 'Network Graph', icon: <Network className="w-4 h-4" />, href: '/#graph' },
+      { label: 'Timeline', icon: <Clock className="w-4 h-4" />, href: '/#timeline' },
+      { label: 'Entities', icon: <Users className="w-4 h-4" />, href: '/#entities' },
+      { label: 'Intel Feed', icon: <Newspaper className="w-4 h-4" />, href: '/#feed' },
+    ],
+  },
+  {
+    title: 'New Panels',
+    items: [
+      { label: 'Dark Web', icon: <Globe className="w-4 h-4" />, href: '/#darkweb', isNew: true },
+      { label: 'Threat Actors', icon: <Fingerprint className="w-4 h-4" />, href: '/#actors', isNew: true },
+      { label: 'Sentiment', icon: <MessageSquare className="w-4 h-4" />, href: '/#sentiment', isNew: true },
+      { label: 'SIGINT', icon: <Radio className="w-4 h-4" />, href: '/#sigint', isNew: true },
+      { label: 'Alerts', icon: <Bell className="w-4 h-4" />, href: '/#alerts', badge: 23, isNew: true },
+    ],
+  },
+  {
+    title: 'Workspaces',
+    items: [
+      { label: 'Investigation', icon: <Target className="w-4 h-4" />, href: '/investigation', isNew: true },
+      { label: 'Reports', icon: <FileText className="w-4 h-4" />, href: '/reports', isNew: true },
+    ],
+  },
+  {
+    title: 'System',
+    items: [
+      { label: 'Settings', icon: <Settings className="w-4 h-4" />, href: '/settings', isNew: true },
+    ],
+  },
 ];
 
-const bottomItems: NavItem[] = [
-  { id: "settings", label: "Settings", icon: <Settings size={18} /> },
-];
-
-export default function Sidebar() {
+export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const [activeId, setActiveId] = useState("dashboard");
+  const pathname = usePathname();
 
   return (
     <aside
-      className={clsx(
-        "h-screen bg-osint-panel border-r border-osint-border flex flex-col transition-all duration-300 relative z-20",
-        collapsed ? "w-16" : "w-56"
-      )}
+      className={`flex flex-col h-screen bg-[#080d16] border-r border-white/5 transition-all duration-300 ${
+        collapsed ? 'w-16' : 'w-56'
+      }`}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-osint-border">
-        <div className="w-8 h-8 bg-osint-cyan/10 border border-osint-cyan/30 flex items-center justify-center flex-shrink-0">
-          <Eye size={16} className="text-osint-cyan" />
-        </div>
+      <div className="flex items-center justify-between p-4 border-b border-white/5">
         {!collapsed && (
-          <div className="animate-fade-in">
-            <div className="text-sm font-semibold text-osint-text tracking-wide">OSINT</div>
-            <div className="text-[10px] font-mono text-osint-text-muted tracking-widest">MONITOR v0.1</div>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+              <Shield className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <span className="text-sm font-bold text-gray-100 tracking-tight">NEXUS</span>
+              <span className="text-[9px] text-cyan-400 block -mt-0.5 font-mono">OSINT PLATFORM</span>
+            </div>
+          </div>
+        )}
+        {collapsed && (
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mx-auto">
+            <Shield className="w-4 h-4 text-white" />
           </div>
         )}
       </div>
 
-      {/* Main Nav */}
-      <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveId(item.id)}
-            className={clsx(
-              "w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all duration-200 group relative",
-              activeId === item.id
-                ? "bg-osint-cyan/10 text-osint-cyan border-l-2 border-osint-cyan"
-                : "text-osint-text-dim hover:text-osint-text hover:bg-osint-surface/50 border-l-2 border-transparent"
-            )}
-          >
-            <span className="flex-shrink-0">{item.icon}</span>
+      {/* Status Indicator */}
+      {!collapsed && (
+        <div className="px-4 py-2 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[10px] text-green-400 font-mono">SYSTEM OPERATIONAL</span>
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <Activity className="w-3 h-3 text-gray-600" />
+            <span className="text-[9px] text-gray-600">47 collectors active</span>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto scrollbar-thin py-2">
+        {navSections.map((section) => (
+          <div key={section.title} className="mb-2">
             {!collapsed && (
-              <span className="flex-1 text-left truncate animate-fade-in">{item.label}</span>
+              <div className="px-4 py-1">
+                <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">
+                  {section.title}
+                </span>
+              </div>
             )}
-            {!collapsed && item.badge && (
-              <span className="px-1.5 py-0.5 text-[10px] font-mono bg-osint-surface border border-osint-border rounded-sm">
-                {item.badge}
-              </span>
-            )}
-            {collapsed && item.badge && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-osint-cyan rounded-full" />
-            )}
-          </button>
+            {section.items.map((item) => {
+              const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href.split('#')[0]) && item.href.split('#')[0] !== '/');
+              const isDashActive = item.href === '/' && pathname === '/';
+              const active = isActive || isDashActive;
+
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-1.5 mx-2 rounded-md text-xs transition-all group ${
+                    active
+                      ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                      : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.03] border border-transparent'
+                  }`}
+                  title={collapsed ? item.label : undefined}
+                >
+                  <span className={active ? 'text-cyan-400' : 'text-gray-600 group-hover:text-gray-400'}>
+                    {item.icon}
+                  </span>
+                  {!collapsed && (
+                    <>
+                      <span className="flex-1">{item.label}</span>
+                      {item.isNew && (
+                        <span className="text-[7px] px-1 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-bold">
+                          NEW
+                        </span>
+                      )}
+                      {item.badge && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 font-mono font-bold">
+                          {item.badge}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
         ))}
       </nav>
 
-      {/* Bottom Nav */}
-      <div className="py-3 px-2 border-t border-osint-border space-y-1">
-        {bottomItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveId(item.id)}
-            className={clsx(
-              "w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all duration-200",
-              activeId === item.id
-                ? "bg-osint-cyan/10 text-osint-cyan"
-                : "text-osint-text-dim hover:text-osint-text hover:bg-osint-surface/50"
-            )}
-          >
-            <span className="flex-shrink-0">{item.icon}</span>
-            {!collapsed && <span className="animate-fade-in">{item.label}</span>}
-          </button>
-        ))}
-      </div>
-
       {/* Collapse Toggle */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-osint-panel border border-osint-border flex items-center justify-center text-osint-text-muted hover:text-osint-cyan transition-colors z-30"
-      >
-        {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-      </button>
+      <div className="border-t border-white/5 p-2">
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="w-full flex items-center justify-center gap-2 py-1.5 rounded text-gray-600 hover:text-gray-400 hover:bg-white/5 transition-colors"
+        >
+          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          {!collapsed && <span className="text-[10px]">Collapse</span>}
+        </button>
+      </div>
     </aside>
   );
 }
